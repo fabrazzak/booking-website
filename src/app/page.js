@@ -575,7 +575,8 @@ export default function SearchBar() {
       <footer className=''>
         <div className="bg-[#f7f7f7] py-6 relative">
           <div className="max-w-7xl mx-auto px-4 gap-1 text-center md:text-left flex flex-col relative">
-            <Link href="/" className=" hover:text-[#bc7c37] transition text-[#141414]">
+            <div className='px-4 gap-1 text-center md:text-left flex flex-col  ml-72'>
+              <Link href="/" className=" hover:text-[#bc7c37] transition text-[#141414]">
               Rentals
             </Link>
             <Link href="/about-us" className="  hover:text-[#bc7c37] transition text-[#141414]">
@@ -587,6 +588,7 @@ export default function SearchBar() {
             <Link href="/contact" className="fhover:text-[#bc7c37] transition text-[#141414]">
               Contact
             </Link>
+            </div>
 
             <div className='absolute bottom-5 right-0 transform -translate-x-1/2 text-4xl text-green-600'>
               <Link href="https://api.whatsapp.com/send?phone=8801812345678" target="_blank" className=" hover:text-green-600 transition">

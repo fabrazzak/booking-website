@@ -7,7 +7,7 @@ import { IoMdEye } from "react-icons/io";
 const PropertyCard = ({ property }) => {
   return (
     <Link href={`/properties/${property.id}`} passHref>
-      <div className="rounded-xl overflow-hidden  hover:shadow transition-shadow duration-300 cursor-pointer p-2 bg-white border-2 border-[#f7f7f7]">
+      <div className=" overflow-hidden  hover:shadow transition-shadow duration-300 cursor-pointer p-2 bg-white border-2 border-[#f7f7f7]">
         {/* Top Part - Image with Location Badge */}
         <div className="relative">
           <img 
