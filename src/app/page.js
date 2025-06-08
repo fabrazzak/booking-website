@@ -292,7 +292,7 @@ export default function SearchBar() {
           {/* Popup container */}
           <div
             ref={containerRef}
-            className="bg-white border border-[#bc7c37] absolute right-15  shadow-md flex rounded-xl  p-4"
+            className="bg-white border border-[#bc7c37] absolute right-20  shadow-md flex rounded-xl  p-4"
             style={{ minWidth: "150px", display: isOpen ? "flex" : "none", flexDirection: "column" }}
           >
             <button
