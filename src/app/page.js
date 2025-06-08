@@ -376,7 +376,7 @@ export default function SearchBar() {
                 setDatePickerView('checkOut')
               }}
             >
-              <div className={`px-6 py-4 border-r border-gray-100 ${activeTab === 'out-date' ? 'bg-[#f7f7f7] rounded-full' : ''}`}>
+              <div className={`px-6 py-4 border-r border-gray-100 ${activeTab === 'out-date' ? ' rounded-full' : ''}`}>
                 <p className="text-sm font-semibold text-[#141414]">CHECK OUT</p>
                 <p className="text-gray-500 text-sm">
                   {checkOut ? checkOut.toLocaleDateString() : 'Add date'}
@@ -472,7 +472,7 @@ export default function SearchBar() {
               className="cursor-pointer relative"
               onClick={() => setActiveTab(activeTab === 'guests' ? null : 'guests')}
             >
-              <div className={`px-6 py-4 ${activeTab === 'guests' ? 'bg-[#f7f7f7] rounded-full' : ''}`}>
+              <div className={`px-6 py-4 ${activeTab === 'guests' ? 'bg-amber-50 rounded-full' : ''}`}>
                 <p className="text-sm font-semibold text-[#141414]">GUESTS</p>
                 <p className="text-gray-500 text-sm">
                   {guests.adults + guests.children > 0 
