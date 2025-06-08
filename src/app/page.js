@@ -277,7 +277,7 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="w-full flex justify-center bg-white z-50 relative flex-col">
+    <div className="w-full flex justify-center  relative flex-col">
       <div className=' bg-[#f7f7f7]  border-[#bc7c37] border-b-1 '>
         <header className='w-full flex justify-center py-10 max-w-7xl mx-auto z-50 relative '>
 
@@ -321,7 +321,7 @@ export default function SearchBar() {
               className="cursor-pointer relative "
               onClick={() => setActiveTab(activeTab === 'destination' ? null : 'destination')}
             >
-              <div className={`px-6 py-4 border-r border-gray-100 ${activeTab === 'destination' ? 'bg-amber-50 rounded-full' : ''}`}>
+              <div className={`px-6 py-4 border-r border-gray-100 ${activeTab === 'destination' ? 'bg-[#f7f7f7] z-50 rounded-full' : ''}`}>
                 <p className="text-sm font-semibold text-[#141414]">DESTINATION</p>
                 <p className="text-gray-500 text-sm">
                   {selectedDestination || 'Search destination'}
@@ -360,7 +360,7 @@ export default function SearchBar() {
                 setDatePickerView('checkIn')
               }}
             >
-              <div className={`px-6 py-4 border-r border-gray-100 ${activeTab === 'in-date' ? 'bg-amber-50 rounded-full' : ''}`}>
+              <div className={`px-6 py-4 border-r border-gray-100 ${activeTab === 'in-date' ? 'bg-[#f7f7f7] rounded-full' : ''}`}>
                 <p className="text-sm font-semibold text-[#141414]">CHECK IN</p>
                 <p className="text-gray-500 text-sm">
                   {checkIn ? checkIn.toLocaleDateString() : 'Add date'}
@@ -376,7 +376,7 @@ export default function SearchBar() {
                 setDatePickerView('checkOut')
               }}
             >
-              <div className={`px-6 py-4 border-r border-gray-100 ${activeTab === 'out-date' ? 'bg-amber-50 rounded-full' : ''}`}>
+              <div className={`px-6 py-4 border-r border-gray-100 ${activeTab === 'out-date' ? 'bg-[#f7f7f7] rounded-full' : ''}`}>
                 <p className="text-sm font-semibold text-[#141414]">CHECK OUT</p>
                 <p className="text-gray-500 text-sm">
                   {checkOut ? checkOut.toLocaleDateString() : 'Add date'}
@@ -472,7 +472,7 @@ export default function SearchBar() {
               className="cursor-pointer relative"
               onClick={() => setActiveTab(activeTab === 'guests' ? null : 'guests')}
             >
-              <div className={`px-6 py-4 ${activeTab === 'guests' ? 'bg-amber-50 rounded-full' : ''}`}>
+              <div className={`px-6 py-4 ${activeTab === 'guests' ? 'bg-[#f7f7f7] rounded-full' : ''}`}>
                 <p className="text-sm font-semibold text-[#141414]">GUESTS</p>
                 <p className="text-gray-500 text-sm">
                   {guests.adults + guests.children > 0 
