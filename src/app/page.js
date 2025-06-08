@@ -575,16 +575,16 @@ export default function SearchBar() {
       <footer className=''>
         <div className="bg-[#f7f7f7] py-6 relative">
           <div className="max-w-7xl mx-auto px-4 gap-1 text-center md:text-left flex flex-col relative">
-            <Link href="/" className=" hover:text-[#bc7c37] transition">
+            <Link href="/" className=" hover:text-[#bc7c37] transition text-[#141414]">
               Rentals
             </Link>
-            <Link href="/about-us" className="  hover:text-[#bc7c37] transition">
+            <Link href="/about-us" className="  hover:text-[#bc7c37] transition text-[#141414]">
               About Us
             </Link>
-            <Link href="/our-services" className="  hover:text-[#bc7c37] transition">
+            <Link href="/our-services" className="  hover:text-[#bc7c37] transition text-[#141414]">
               Our Services
             </Link>
-            <Link href="/contact" className="fhover:text-[#bc7c37] transition">
+            <Link href="/contact" className="fhover:text-[#bc7c37] transition text-[#141414]">
               Contact
             </Link>
 
