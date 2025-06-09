@@ -59,3 +59,33 @@ body {
 .react-datepicker {
     border: none !important;
 }
+
+
+/* Responsive styling */
+@media (max-width: 768px) {
+    .react-datepicker__day-name,
+    .react-datepicker__day,
+    .react-datepicker__time-name {
+        width: 34px !important;
+        line-height: 30px !important;
+        font-size: 14px;
+    }
+
+    .react-datepicker__header {
+        padding: 6px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .react-datepicker__day-name,
+    .react-datepicker__day,
+    .react-datepicker__time-name {
+        width: 28px !important;
+        line-height: 26px !important;
+        font-size: 12px;
+    }
+
+    .react-datepicker__header {
+        padding: 4px 0;
+    }
+}
