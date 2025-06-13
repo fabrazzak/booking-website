@@ -12,47 +12,8 @@ import axios from 'axios';
 import { useMyContext } from '@/context/MyContext';
 import { addMonths } from 'date-fns';
 
-// Mock database of booked dates for each property
-const bookedDates = {
-  "apt-001": [
-    { start: new Date(2024, 5, 10), end: new Date(2024, 5, 15) },
-    { start: new Date(2024, 6, 1), end: new Date(2024, 6, 7) }
-  ],
-  "apt-002": [
-    { start: new Date(2024, 5, 5), end: new Date(2024, 5, 12) },
-    { start: new Date(2024, 6, 20), end: new Date(2024, 6, 25) }
-  ],
-  "apt-003": [
-    { start: new Date(2024, 5, 20), end: new Date(2024, 5, 27) }
-  ],
-  "apt-0011": [
-    { start: new Date(2024, 5, 10), end: new Date(2024, 5, 15) }
-  ],
-  "apt-0022": [
-    { start: new Date(2024, 5, 8), end: new Date(2024, 5, 14) }
-  ],
-  "apt-0033": [
-    { start: new Date(2024, 5, 25), end: new Date(2024, 5, 30) }
-  ]
-};
 
-// Function to check if a date range is available
-const isDateRangeAvailable = (propertyId, checkIn, checkOut) => {
-  const bookings = bookedDates[propertyId] || [];
 
-  if (!checkIn || !checkOut) return true;
-
-  for (const booking of bookings) {
-    if (
-      (checkIn >= booking.start && checkIn <= booking.end) ||
-      (checkOut >= booking.start && checkOut <= booking.end) ||
-      (checkIn <= booking.start && checkOut >= booking.end)
-    ) {
-      return false;
-    }
-  }
-  return true;
-};
 
 export default function SearchBar() {
   const [activeTab, setActiveTab] = useState(null)
@@ -251,10 +212,7 @@ export default function SearchBar() {
 };
 
 
-  const isBookedDate = (date, propertyId) => {
-    const bookings = bookedDates[propertyId] || [];
-    return bookings.some(booking => date >= booking.start && date <= booking.end);
-  };
+
 
   const renderSearchBar = () => (
     <div
@@ -350,10 +308,10 @@ export default function SearchBar() {
                   shouldCloseOnSelect={false}
                   focusSelectedMonth={true}
                   dayClassName={date => {
-                    const isBooked = properties.some(property =>
-                      isBookedDate(date, property.id)
-                    );
-                    return isBooked ? 'bg-red-100 text-red-500' : undefined;
+                    // const isBooked = properties.some(property =>
+                    //   isBookedDate(date, property.id)
+                    // );
+                    // return isBooked ? 'bg-red-100 text-red-500' : undefined;
                   }}
                   renderDayContents={(day, date) => (
                     <div className="day-content">
@@ -402,10 +360,10 @@ export default function SearchBar() {
                 shouldCloseOnSelect={false}
                 focusSelectedMonth={true}
                 dayClassName={date => {
-                  const isBooked = properties.some(property =>
-                    isBookedDate(date, property.id)
-                  );
-                  return isBooked ? 'bg-red-100 text-red-500' : undefined;
+                  // const isBooked = properties.some(property =>
+                  //   isBookedDate(date, property.id)
+                  // );
+                  // return isBooked ? 'bg-red-100 text-red-500' : undefined;
                 }}
               />
             </div>
@@ -563,14 +521,13 @@ export default function SearchBar() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 py-6">
           {filteredProperties.map(property => {
-            const isAvailable = isDateRangeAvailable(property.id, checkIn, checkOut);
+            
             return (
               <PropertyCard
                 key={property.id}
                 property={property}
                 checkIn={checkIn}
                 checkOut={checkOut}
-                isAvailable={isAvailable}
               />
             );
           })}
