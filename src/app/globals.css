@@ -61,6 +61,17 @@ body {
 }
 
 
+
+/* Add this to your global CSS */
+.react-datepicker {
+  display: flex !important;
+  border: none;
+  gap: 10px;
+  padding: 0;
+  position: static !important;
+}
+
+
 /* Responsive styling */
 @media (max-width: 768px) {
     .react-datepicker__day-name,

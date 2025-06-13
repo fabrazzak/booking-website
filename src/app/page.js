@@ -8,6 +8,9 @@ import { BsGlobe } from "react-icons/bs";
 import { BsWhatsapp } from "react-icons/bs";
 import { MdMenu } from "react-icons/md";
 import { IoClose } from "react-icons/io5";
+import axios from 'axios';
+import { useMyContext } from '@/context/MyContext';
+import { addMonths } from 'date-fns';
 
 // Mock database of booked dates for each property
 const bookedDates = {
@@ -33,141 +36,47 @@ const bookedDates = {
   ]
 };
 
-export const properties = [
-  {
-    id: "apt-001",
-    type: "apartment",
-    title: "Sea View Luxury Apartment",
-    destination: "Cox's Bazar",
-    mainImage: "https://a0.muscache.com/im/pictures/hosting/Hosting-1199417950513832087/original/6fe09420-a945-441f-948f-bc1da99773db.jpeg?im_w=1200",
-    capacity: {
-      adults: 4,
-      children: 2,
-      bedrooms: 2,
-      bathrooms: 1
-    },
-    price: 120,
-    isFeatured: true
-  },
-  {
-    id: "apt-002",
-    type: "apartment",
-    title: "Modern City Center Flat",
-    destination: "Dhaka",
-    mainImage: "https://a0.muscache.com/im/pictures/7c5e5afc-c954-41f7-bf0c-70b866dbcc60.jpg?im_w=1200",
-    capacity: {
-      adults: 3,
-      children: 1,
-      bedrooms: 1,
-      bathrooms: 1
-    },
-    price: 95,
-    isFeatured: false
-  },
-  {
-    id: "apt-003",
-    type: "villa",
-    title: "Nature Retreat Villa",
-    destination: "Sylhet",
-    mainImage: "https://a0.muscache.com/im/pictures/prohost-api/Hosting-52666336/original/2b259c4f-d5b5-4e1c-8651-86debc704bfc.jpeg?im_w=1200",
-    capacity: {
-      adults: 6,
-      children: 3,
-      bedrooms: 3,
-      bathrooms: 2
-    },
-    price: 150,
-    isFeatured: true
-  },
-  {
-    id: "apt-0011",
-    type: "apartment",
-    title: "Sea View Luxury Apartment",
-    destination: "Cox's Bazar",
-    mainImage: "https://a0.muscache.com/im/pictures/hosting/Hosting-1199417950513832087/original/6fe09420-a945-441f-948f-bc1da99773db.jpeg?im_w=1200",
-    capacity: {
-      adults: 4,
-      children: 2,
-      bedrooms: 2,
-      bathrooms: 1
-    },
-    price: 120,
-    isFeatured: true
-  },
-  {
-    id: "apt-0022",
-    type: "apartment",
-    title: "Modern City Center Flat",
-    destination: "Dhaka",
-    mainImage: "https://a0.muscache.com/im/pictures/7c5e5afc-c954-41f7-bf0c-70b866dbcc60.jpg?im_w=1200",
-    capacity: {
-      adults: 3,
-      children: 1,
-      bedrooms: 1,
-      bathrooms: 1
-    },
-    price: 95,
-    isFeatured: false
-  },
-  {
-    id: "apt-0033",
-    type: "villa",
-    title: "Nature Retreat Villa",
-    destination: "Sylhet",
-    mainImage: "https://a0.muscache.com/im/pictures/prohost-api/Hosting-52666336/original/2b259c4f-d5b5-4e1c-8651-86debc704bfc.jpeg?im_w=1200",
-    capacity: {
-      adults: 6,
-      children: 3,
-      bedrooms: 3,
-      bathrooms: 2
-    },
-    price: 150,
-    isFeatured: true
-  }
-];
-
 // Function to check if a date range is available
 const isDateRangeAvailable = (propertyId, checkIn, checkOut) => {
   const bookings = bookedDates[propertyId] || [];
 
-  // If no dates selected, consider it available
   if (!checkIn || !checkOut) return true;
 
-  // Check if the selected range overlaps with any booked dates
   for (const booking of bookings) {
     if (
       (checkIn >= booking.start && checkIn <= booking.end) ||
       (checkOut >= booking.start && checkOut <= booking.end) ||
       (checkIn <= booking.start && checkOut >= booking.end)
     ) {
-      return false; // Overlapping dates found
+      return false;
     }
   }
-  return true; // No overlapping dates found
+  return true;
 };
 
 export default function SearchBar() {
   const [activeTab, setActiveTab] = useState(null)
-  const [checkIn, setCheckIn] = useState(null)
-  const [checkOut, setCheckOut] = useState(null)
-  const [guests, setGuests] = useState({ adults: 0, children: 0 })
-  const [datePickerView, setDatePickerView] = useState('checkIn')
-  const [selectedDestination, setSelectedDestination] = useState(null)
-  const [filteredProperties, setFilteredProperties] = useState(properties)
+  // const [checkIn, setCheckIn] = useState(null)
+  // const [checkOut, setCheckOut] = useState(null)
+  // const [guests, setGuests] = useState({ adults: 0, children: 0 })
+  const [datePickerView, setDatePickerView] = useState(null)
+  // const [selectedDestination, setSelectedDestination] = useState(null)
+  const [properties, setProperties] = useState([])
+  const [filteredProperties, setFilteredProperties] = useState([])
   const [searchPerformed, setSearchPerformed] = useState(false)
   const [openMenu, setOpenMenu] = useState(false)
   const [showMobileSearch, setShowMobileSearch] = useState(false)
+  // const [totalBookingDay, setTotalBookingDay] = useState(0)
 
   const containerRef = useRef(null)
   const destinationRef = useRef(null)
   const dateRef = useRef(null)
   const guestsRef = useRef(null)
   const searchRef = useRef(null)
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false)
+  const [destinations, setDestinations] = useState([])
+  const { checkOut, checkIn, selectedDestination,guests,setCheckOut,setCheckIn,setSelectedDestination ,setGuests,totalBookingDay,setTotalBookingDay} = useMyContext()
 
-  const destinations = ['Dhaka', 'Chattogram', 'Sylhet', 'Cox\'s Bazar', 'Rajshahi']
-
-  // Handle click outside to close popup
   useEffect(() => {
     function handleClickOutside(event) {
       if (
@@ -185,53 +94,55 @@ export default function SearchBar() {
   }, [])
 
   const handleCheckInSelect = (date) => {
-    const oneMonthLater = new Date(date);
-    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-
     setCheckIn(date);
     setDatePickerView('checkOut');
-    setActiveTab('out-date');
+
+    if (!checkOut || date >= checkOut) {
+      const nextDay = new Date(date);
+      nextDay.setDate(nextDay.getDate() + 3);
+      setCheckOut(nextDay);
+      setActiveTab('out-date')
+    }
   };
 
   const handleCheckOutSelect = (date) => {
-    // Ensure checkout is at least 1 month after checkin
-    if (checkIn) {
-      const minCheckout = new Date(checkIn);
-      minCheckout.setMonth(minCheckout.getMonth() + 1);
+    // Ensure checkout date is after current date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      if (date < minCheckout) {
-        setCheckOut(minCheckout);
-      } else {
-        setCheckOut(date);
-      }
+    if (date <= today) {
+      // If selected date is today or before, set to tomorrow
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 3);
+      setCheckOut(tomorrow);
     } else {
       setCheckOut(date);
+    }
+
+    if (checkIn) {
+      const timeDiff = date.getTime() - checkIn.getTime();
+      const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      setTotalBookingDay(nights);
     }
   }
 
   const getMinCheckoutDate = () => {
-    if (checkIn) {
-      const minDate = new Date(checkIn);
-      minDate.setMonth(minDate.getMonth() + 1);
-      return minDate;
+    if (!checkIn) {
+      // If no check-in date selected, minimum checkout is tomorrow
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 3);
+      return tomorrow;
     }
-    const today = new Date();
-    const minDate = new Date(today);
-    minDate.setMonth(minDate.getMonth() + 1);
+    const minDate = new Date(checkIn);
+    minDate.setDate(minDate.getDate() + 3);
     return minDate;
   };
 
   const handleGuestChange = (type, operation) => {
-    setGuests(prev => {
-      const newValue = operation === 'increment'
-        ? prev[type] + 1
-        : Math.max(prev[type] - 1, 0)
-
-      return {
-        ...prev,
-        [type]: newValue
-      }
-    })
+    setGuests(prev => ({
+      ...prev,
+      [type]: operation === 'increment' ? prev[type] + 1 : Math.max(prev[type] - 1, 0)
+    }))
   }
 
   const handleDestinationSelect = (destination) => {
@@ -242,42 +153,107 @@ export default function SearchBar() {
     }, 50)
   }
 
-  // Function to handle search
-  const handleSearch = () => {
-    const totalGuests = guests.adults + guests.children;
-
-    const filtered = properties.filter(property => {
-      // Filter by destination if selected
-      if (selectedDestination && property.destination !== selectedDestination) {
-        return false;
+  useEffect(() => {
+    const fetchListingData = async () => {
+      try {
+        const response = await axios.get('https://api.hostaway.com/v1/listings', {
+          headers: {
+            Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`
+          }
+        });
+        setProperties(response?.data?.result);
+        setFilteredProperties(response?.data?.result);
+        setDestinations([...new Set(response?.data?.result.map(p => p.city))])
+      } catch (err) {
+        console.error('Failed to fetch listings', err);
       }
+    }
+    fetchListingData()
+  }, [])
 
-      // Filter by guest capacity
-      if (totalGuests > 0 &&
-        (property.capacity.adults + property.capacity.children) < totalGuests) {
-        return false;
-      }
+ const handleSearch = async () => {
+  const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
-      // Filter by date availability
-      if (checkIn && checkOut && !isDateRangeAvailable(property.id, checkIn, checkOut)) {
-        return false;
-      }
+  const checkInDate = formatDate(checkIn);
+  const checkOutDate = formatDate(checkOut);
 
+  const generateDateRange = (start, end) => {
+    const dates = [];
+    const current = new Date(start);
+    while (current < end) {
+      dates.push(formatDate(current));
+      current.setDate(current.getDate() + 1);
+    }
+    return dates;
+  };
+
+  const dateRange = generateDateRange(checkIn, checkOut);
+  const totalGuests = guests.adults + guests.children;
+
+  try {
+    // 1. Fetch all properties
+    const { data } = await axios.get('https://api.hostaway.com/v1/listings', {
+      headers: {
+        Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
+      },
+    });
+
+    const allProperties = data?.result || [];
+
+    // 2. Filter based on static fields like destination and guest capacity
+    const staticFiltered = allProperties.filter(property => {
+      if (selectedDestination && property.city !== selectedDestination) return false;
+      if (totalGuests > 0 && (property.bedrooms * 2) < totalGuests) return false;
       return true;
     });
 
-    setFilteredProperties(filtered);
-    setSearchPerformed(true);
-    setActiveTab(null);
-    setShowMobileSearch(false); // Close mobile search after search
-  };
+    // 3. Check availability for each property (async)
+    const availabilityChecks = await Promise.all(
+      staticFiltered.map(async (property) => {
+        try {
+          const res = await axios.get(`https://api.hostaway.com/v1/listings/${property.id}/calendar?startDate=${checkInDate}&endDate=${checkOutDate}`, {
+            headers: {
+              Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
+            },
+          });
 
-  // Function to highlight booked dates in the date picker
+          const availabilityData = res?.data?.result;
+
+          const isAvailable = dateRange.every(date => {
+            const match = availabilityData.find(item => item.date === date);
+            return match && match.isAvailable === 1 && match.status === "available";
+          });
+
+          return isAvailable ? property : null;
+        } catch (error) {
+          console.error(`Error checking availability for property ${property.id}`, error);
+          return null;
+        }
+      })
+    );
+
+    // 4. Filter out nulls and update state
+    const finalFiltered = availabilityChecks.filter(p => p !== null);
+    setFilteredProperties(finalFiltered);
+  } catch (error) {
+    console.error('Failed to fetch listings:', error);
+  }
+
+  // Final UI updates
+  setSearchPerformed(true);
+  setActiveTab(null);
+  setShowMobileSearch(false);
+};
+
+
   const isBookedDate = (date, propertyId) => {
     const bookings = bookedDates[propertyId] || [];
-    return bookings.some(booking =>
-      date >= booking.start && date <= booking.end
-    );
+    return bookings.some(booking => date >= booking.start && date <= booking.end);
   };
 
   const renderSearchBar = () => (
@@ -302,9 +278,9 @@ export default function SearchBar() {
           <div className={`absolute ${showMobileSearch ? 'left-0 right-0' : 'left-0'} top-full mt-2 bg-white shadow-lg p-4 rounded-xl z-50 ${showMobileSearch ? 'w-full' : 'w-96'}`}>
             <p className='my-5'>Suggestions de destinations</p>
             <ul className="space-y-2">
-              {destinations.map((dest, i) => (
+              {destinations.map((dest, index) => (
                 <li
-                  key={i}
+                  key={index}
                   className="hover:bg-gray-100 p-2 rounded cursor-pointer flex items-center gap-4"
                   onClick={() => handleDestinationSelect(dest)}
                 >
@@ -354,65 +330,78 @@ export default function SearchBar() {
         </div>
       </div>
 
-      {/* Combined Date Picker Popup */}
-      {(activeTab === 'in-date' || activeTab === 'out-date') && (
+      {/* Combined Date Picker Popup for check-in */}
+      {(activeTab === 'in-date') && (
         <div className={`absolute ${showMobileSearch ? 'left-4 right-4' : 'left-0'} top-full mt-2 bg-white shadow-lg p-6 rounded-xl z-50 ${showMobileSearch ? 'w-auto' : 'w-full'}`}>
           <div className={`grid ${showMobileSearch ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
             <div className={datePickerView === 'checkIn' ? '' : 'opacity-70'}>
-              <DatePicker
-                selected={checkIn}
-                onChange={handleCheckInSelect}
-                selectsStart
-                startDate={checkIn}
-                endDate={checkOut}
-                minDate={new Date()}
-                maxDate={checkOut ? new Date(checkOut.getFullYear(), checkOut.getMonth() - 1, checkOut.getDate()) : null}
-                inline
-                calendarClassName="rounded-lg border-2 border-gray-200 w-full"
-                dateFormat="dd MMM yyyy"
-                shouldCloseOnSelect={false}
-                focusSelectedMonth={true}
-                dayClassName={date => {
-                  if (checkOut) {
-                    const oneMonthBeforeCheckOut = new Date(checkOut);
-                    oneMonthBeforeCheckOut.setMonth(oneMonthBeforeCheckOut.getMonth() - 1);
-                    if (date > oneMonthBeforeCheckOut) {
-                      return 'disabled-date';
-                    }
-                  }
-                  const isBooked = properties.some(property =>
-                    isBookedDate(date, property.id)
-                  );
-                  return isBooked ? 'bg-red-100 text-red-500' : undefined;
-                }}
-              />
+              <div className="flex gap-4">
+                <DatePicker
+                  selected={checkIn}
+                  onChange={handleCheckInSelect}
+                  selectsStart
+                  startDate={checkIn}
+                  endDate={checkOut}
+                  minDate={new Date()}
+                  inline
+                  monthsShown={2}
+                  calendarClassName="rounded-lg border-2 border-gray-200 w-full"
+                  dateFormat="dd MMM yyyy"
+                  shouldCloseOnSelect={false}
+                  focusSelectedMonth={true}
+                  dayClassName={date => {
+                    const isBooked = properties.some(property =>
+                      isBookedDate(date, property.id)
+                    );
+                    return isBooked ? 'bg-red-100 text-red-500' : undefined;
+                  }}
+                  renderDayContents={(day, date) => (
+                    <div className="day-content">
+                      {day}
+                    </div>
+                  )}
+                  showMonthDropdown
+                  showYearDropdown
+                  dropdownMode="select"
+                  calendarContainer={({ className, children }) => (
+                    <div className={`${className} flex gap-4`}>
+                      {children}
+                    </div>
+                  )}
+                />
+              </div>
             </div>
+          </div>
+          <div className="mt-4 text-sm text-gray-600">
+            {checkIn && checkOut && (
+              <p className="font-medium">
+                Selected stay: {totalBookingDay} {totalBookingDay === 1 ? 'night' : 'nights'}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Combined Date Picker Popup for checkout */}
+      {(activeTab === 'out-date') && (
+        <div className={`absolute ${showMobileSearch ? 'left-4 right-4' : 'left-0'} top-full mt-2 bg-white shadow-lg p-6 rounded-xl z-50 ${showMobileSearch ? 'w-auto' : 'w-full'}`}>
+          <div className={`grid ${showMobileSearch ? 'grid-cols-1' : 'grid-cols-2'} gap-4`}>
             <div className={datePickerView === 'checkOut' ? '' : 'opacity-70'}>
               <DatePicker
-                key={checkIn ? `checkout-${checkIn.getTime()}` : 'checkout-default'}
                 selected={checkOut}
                 onChange={handleCheckOutSelect}
                 selectsEnd
                 startDate={checkIn}
                 endDate={checkOut}
                 minDate={getMinCheckoutDate()}
+                maxDate={addMonths(new Date(), 12)}
                 inline
-                calendarClassName="rounded-lg w-full"
+                monthsShown={2}
+                calendarClassName="rounded-lg border-2 border-gray-200 w-full"
                 dateFormat="dd MMM yyyy"
                 shouldCloseOnSelect={false}
                 focusSelectedMonth={true}
-                initialMonth={checkIn
-                  ? new Date(checkIn.getFullYear(), checkIn.getMonth() + 1, 1)
-                  : new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1)
-                }
                 dayClassName={date => {
-                  if (checkIn) {
-                    const oneMonthAfterCheckIn = new Date(checkIn);
-                    oneMonthAfterCheckIn.setMonth(oneMonthAfterCheckIn.getMonth() + 1);
-                    if (date < oneMonthAfterCheckIn) {
-                      return 'disabled-date';
-                    }
-                  }
                   const isBooked = properties.some(property =>
                     isBookedDate(date, property.id)
                   );
@@ -422,10 +411,9 @@ export default function SearchBar() {
             </div>
           </div>
           <div className="mt-4 text-sm text-gray-600">
-            <p>Minimum stay: 1 month</p>
             {checkIn && checkOut && (
               <p className="font-medium">
-                Selected stay: {Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24))} days
+                Selected stay: {totalBookingDay} {totalBookingDay === 1 ? 'night' : 'nights'}
               </p>
             )}
           </div>
@@ -503,13 +491,6 @@ export default function SearchBar() {
     <div className="w-full flex justify-center relative flex-col">
       <div className='bg-[#f7f7f7] border-[#bc7c37] border-b-1'>
         <header className='w-full flex justify-center py-8 md:py-10 max-w-7xl mx-auto z-50 relative'>
-          {/* Mobile search toggle button */}
-          {/* <button 
-            className="md:hidden absolute left-4 top-1/2 transform -translate-y-1/2 bg-[#bc7c37] text-white px-4 py-2 rounded-full"
-           
-          >
-            {showMobileSearch ? 'Close Search' : 'Search'}
-          </button> */}
 
           {/* language selector */}
           <div
@@ -520,25 +501,21 @@ export default function SearchBar() {
           </div>
 
           {!openMenu && (
-            <div 
+            <div
               className="absolute z-50 left-5 top-3 transform  rounded-full text-[#bc7c37] text-2xl w-10 h-10 flex justify-center items-center font-semibold cursor-pointer md:hidden"
               onClick={() => setShowMobileSearch(!showMobileSearch)}
             >
-               {showMobileSearch ?  <IoClose /> :  <MdMenu />}
-          
-             
+              {showMobileSearch ? <IoClose /> : <MdMenu />}
             </div>
           )}
-          
-          
 
           {/* Popup container */}
           <div
             ref={containerRef}
             className="bg-white border border-[#bc7c37] absolute right-20 shadow-md flex rounded-xl p-4"
-            style={{ 
-              minWidth: "150px", 
-              display: isOpen ? "flex" : "none", 
+            style={{
+              minWidth: "150px",
+              display: isOpen ? "flex" : "none",
               flexDirection: "column",
               top: "100%",
               marginTop: "10px"
@@ -558,7 +535,7 @@ export default function SearchBar() {
             </button>
           </div>
 
-          {/* Main search bar - shown differently based on screen size */}
+          {/* Main search bar */}
           {showMobileSearch ? (
             <div className="w-full mt-16 px-4 md:hidden">
               {renderSearchBar()}
@@ -587,7 +564,6 @@ export default function SearchBar() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 py-6">
           {filteredProperties.map(property => {
             const isAvailable = isDateRangeAvailable(property.id, checkIn, checkOut);
-
             return (
               <PropertyCard
                 key={property.id}
