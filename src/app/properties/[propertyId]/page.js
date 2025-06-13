@@ -93,7 +93,7 @@ const PropertyDetailsPage = ({ params }) => {
                         <img
                             src={` ${singleProperty?.listingImages[0]?.url}`}
                             alt="Featured"
-                            className="w-full h-full object-cover rounded-xl md:rounded-2xl"
+                            className="w-full  object-cover max-h-[450px] h-full rounded-xl md:rounded-2xl"
                         />
                     </div>
 
@@ -103,7 +103,7 @@ const PropertyDetailsPage = ({ params }) => {
                             <img
                                 src={img?.url}
                                 alt={`Image ${index + 1}`}
-                                className="w-full h-full object-cover rounded-xl md:rounded-2xl"
+                                className="w-full max-h-[215px] h-full object-cover rounded-xl md:rounded-2xl"
                             />
                         </div>
                     ))}
@@ -449,7 +449,7 @@ const PropertyDetailsPage = ({ params }) => {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
                     <button
                         onClick={closePopup}
-                        className="absolute top-4 right-4 md:top-6 md:right-6 text-white text-3xl md:text-4xl hover:text-red-400 transition duration-200"
+                        className="absolute top-4 right-4 md:top-6 md:right-6 text-white text-3xl md:text-4xl  cursor-pointer transition duration-200"
                     >
                         &times;
                     </button>
@@ -458,19 +458,19 @@ const PropertyDetailsPage = ({ params }) => {
                         <img
                             src={singleProperty?.listingImages[currentSlide]?.url}
                             alt={`Slide ${currentSlide + 1}`}
-                            className="w-full max-h-[80vh] md:max-h-[85vh] object-contain rounded-xl md:rounded-3xl shadow-2xl"
+                            className="w-full max-h-[80vh] md:max-h-[85vh] object-cover rounded-xl md:rounded-3xl shadow-2xl"
                         />
 
                         <button
                             onClick={goToPrevious}
-                            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-black rounded-full p-2 md:p-3 shadow-lg backdrop-blur-md transition"
+                            className="absolute left-2 md:left-5 top-1/2 -translate-y-1/2 bg-white  cursor-pointer text-black rounded-full px-3 py-1 shadow-lg backdrop-blur-md transition"
                         >
                             <span className="text-xl md:text-2xl font-bold">&lt;</span>
                         </button>
 
                         <button
                             onClick={goToNext}
-                            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-black rounded-full p-2 md:p-3 shadow-lg backdrop-blur-md transition"
+                            className="absolute right-2 md:right-5 top-1/2 -translate-y-1/2 bg-white cursor-pointer  text-black rounded-full px-3 py-1 shadow-lg backdrop-blur-md transition"
                         >
                             <span className="text-xl md:text-2xl font-bold">&gt;</span>
                         </button>
