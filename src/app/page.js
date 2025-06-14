@@ -36,7 +36,7 @@ export default function SearchBar() {
   const searchRef = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
   const [destinations, setDestinations] = useState([])
-  const { checkOut, checkIn, selectedDestination,guests,setCheckOut,setCheckIn,setSelectedDestination ,setGuests,totalBookingDay,setTotalBookingDay} = useMyContext()
+  const { checkOut, checkIn, selectedDestination, guests, setCheckOut, setCheckIn, setSelectedDestination, setGuests, totalBookingDay, setTotalBookingDay } = useMyContext()
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -132,84 +132,84 @@ export default function SearchBar() {
     fetchListingData()
   }, [])
 
- const handleSearch = async () => {
-  const formatDate = (date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
+  const handleSearch = async () => {
+    const formatDate = (date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
-  const checkInDate = formatDate(checkIn);
-  const checkOutDate = formatDate(checkOut);
+    const checkInDate = formatDate(checkIn);
+    const checkOutDate = formatDate(checkOut);
 
-  const generateDateRange = (start, end) => {
-    const dates = [];
-    const current = new Date(start);
-    while (current < end) {
-      dates.push(formatDate(current));
-      current.setDate(current.getDate() + 1);
+    const generateDateRange = (start, end) => {
+      const dates = [];
+      const current = new Date(start);
+      while (current < end) {
+        dates.push(formatDate(current));
+        current.setDate(current.getDate() + 1);
+      }
+      return dates;
+    };
+
+    const dateRange = generateDateRange(checkIn, checkOut);
+    const totalGuests = guests.adults + guests.children;
+
+    try {
+      // 1. Fetch all properties
+      const { data } = await axios.get('https://api.hostaway.com/v1/listings', {
+        headers: {
+          Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
+        },
+      });
+
+      const allProperties = data?.result || [];
+
+      // 2. Filter based on static fields like destination and guest capacity
+      const staticFiltered = allProperties.filter(property => {
+        if (selectedDestination && property.city !== selectedDestination) return false;
+        if (totalGuests > 0 && (property.bedrooms * 2) < totalGuests) return false;
+        return true;
+      });
+
+      // 3. Check availability for each property (async)
+      const availabilityChecks = await Promise.all(
+        staticFiltered.map(async (property) => {
+          try {
+            const res = await axios.get(`https://api.hostaway.com/v1/listings/${property.id}/calendar?startDate=${checkInDate}&endDate=${checkOutDate}`, {
+              headers: {
+                Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
+              },
+            });
+
+            const availabilityData = res?.data?.result;
+
+            const isAvailable = dateRange.every(date => {
+              const match = availabilityData.find(item => item.date === date);
+              return match && match.isAvailable === 1 && match.status === "available";
+            });
+
+            return isAvailable ? property : null;
+          } catch (error) {
+            console.error(`Error checking availability for property ${property.id}`, error);
+            return null;
+          }
+        })
+      );
+
+      // 4. Filter out nulls and update state
+      const finalFiltered = availabilityChecks.filter(p => p !== null);
+      setFilteredProperties(finalFiltered);
+    } catch (error) {
+      console.error('Failed to fetch listings:', error);
     }
-    return dates;
+
+    // Final UI updates
+    setSearchPerformed(true);
+    setActiveTab(null);
+    setShowMobileSearch(false);
   };
-
-  const dateRange = generateDateRange(checkIn, checkOut);
-  const totalGuests = guests.adults + guests.children;
-
-  try {
-    // 1. Fetch all properties
-    const { data } = await axios.get('https://api.hostaway.com/v1/listings', {
-      headers: {
-        Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
-      },
-    });
-
-    const allProperties = data?.result || [];
-
-    // 2. Filter based on static fields like destination and guest capacity
-    const staticFiltered = allProperties.filter(property => {
-      if (selectedDestination && property.city !== selectedDestination) return false;
-      if (totalGuests > 0 && (property.bedrooms * 2) < totalGuests) return false;
-      return true;
-    });
-
-    // 3. Check availability for each property (async)
-    const availabilityChecks = await Promise.all(
-      staticFiltered.map(async (property) => {
-        try {
-          const res = await axios.get(`https://api.hostaway.com/v1/listings/${property.id}/calendar?startDate=${checkInDate}&endDate=${checkOutDate}`, {
-            headers: {
-              Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
-            },
-          });
-
-          const availabilityData = res?.data?.result;
-
-          const isAvailable = dateRange.every(date => {
-            const match = availabilityData.find(item => item.date === date);
-            return match && match.isAvailable === 1 && match.status === "available";
-          });
-
-          return isAvailable ? property : null;
-        } catch (error) {
-          console.error(`Error checking availability for property ${property.id}`, error);
-          return null;
-        }
-      })
-    );
-
-    // 4. Filter out nulls and update state
-    const finalFiltered = availabilityChecks.filter(p => p !== null);
-    setFilteredProperties(finalFiltered);
-  } catch (error) {
-    console.error('Failed to fetch listings:', error);
-  }
-
-  // Final UI updates
-  setSearchPerformed(true);
-  setActiveTab(null);
-  setShowMobileSearch(false);
-};
 
 
 
@@ -521,7 +521,7 @@ export default function SearchBar() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 py-6">
           {filteredProperties.map(property => {
-            
+
             return (
               <PropertyCard
                 key={property.id}

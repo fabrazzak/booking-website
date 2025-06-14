@@ -1,55 +1,99 @@
 'use client'
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { IoBedOutline } from 'react-icons/io5';
-import { LiaBathSolid } from 'react-icons/lia';
+import { LiaBathSolid } from "react-icons/lia";
 import { CiNoWaitingSign } from "react-icons/ci";
 import { useMyContext } from '@/context/MyContext';
-// import DatePicker from 'react-datepicker'
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { addMonths } from 'date-fns';
 
 const PropertyDetailsPage = ({ params }) => {
     const [singleProperty, setSingleProperty] = useState(null);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [loading, setLoading] = useState(false)
-    const { checkOut, checkIn, selectedDestination, guests, setCheckOut, setCheckIn, setSelectedDestination, setGuests, totalBookingDay, setTotalBookingDay } = useMyContext()
-
-
+    const [loading, setLoading] = useState(false);
+    const [activeReserveButton, setActiveReserveButton] = useState(false);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [datePickerType, setDatePickerType] = useState('checkIn');
+    const datePickerRef = useRef(null);
+    
+    const { checkOut, checkIn, guests, setCheckOut, setCheckIn, setGuests, totalBookingDay, setTotalBookingDay } = useMyContext();
     const { propertyId } = React.use(params);
 
     useEffect(() => {
         const fetchListingData = async () => {
-            setLoading(true)
+            setLoading(true);
             try {
                 const response = await axios.get('https://api.hostaway.com/v1/listings/', {
                     headers: {
                         Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`
                     }
                 });
-                const singleProperFilter = [...response.data.result].filter(p => p.id == propertyId)
+                const singleProperFilter = [...response.data.result].filter(p => p.id == propertyId);
                 setSingleProperty(singleProperFilter[0]);
-                setLoading(false)
+
+                const formatDate = (date) => {
+                    const year = date?.getFullYear();
+                    const month = String(date?.getMonth() + 1).padStart(2, '0');
+                    const day = String(date?.getDate()).padStart(2, '0');
+                    return `${year}-${month}-${day}`;
+                };
+
+                const generateDateRange = (start, end) => {
+                    const dates = [];
+                    const current = new Date(start);
+                    while (current < end) {
+                        dates.push(formatDate(current));
+                        current?.setDate(current.getDate() + 1);
+                    }
+                    return dates;
+                };
+
+                const checkInDate = formatDate(checkIn);
+                const checkOutDate = formatDate(checkOut);
+                const dateRange = generateDateRange(checkIn, checkOut);
+
+                if (checkIn && checkOut) {
+                    try {
+                        const res = await axios.get(
+                            `https://api.hostaway.com/v1/listings/${propertyId}/calendar?startDate=${checkInDate}&endDate=${checkOutDate}`,
+                            {
+                                headers: {
+                                    Authorization: `${process.env.NEXT_PUBLIC_ACCESS_TOKEN}`,
+                                },
+                            }
+                        );
+
+                        const availabilityData = res?.data?.result;
+                        const isAvailable = dateRange.every(date => {
+                            const match = availabilityData.find(item => item.date === date);
+                            return match && match.isAvailable === 1 && match.status === "available";
+                        });
+                        setActiveReserveButton(isAvailable);
+                    } catch (err) {
+                        console.error(err);
+                    }
+                }
+                setLoading(false);
             } catch (err) {
                 console.error(err);
             }
-
-
-              const formatDate = (date) => {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
         };
-
-        const checkInDate = formatDate(checkIn);
-        const checkOutDate = formatDate(checkOut);
-        }
         fetchListingData();
+    }, [propertyId, checkIn, checkOut]);
 
+    useEffect(() => {
+        function handleClickOutside(event) {
+            if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
+                setShowDatePicker(false);
+            }
+        }
 
-      
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
-
 
     const openPopup = () => {
         setIsPopupOpen(true);
@@ -68,19 +112,56 @@ const PropertyDetailsPage = ({ params }) => {
         setCurrentSlide((prev) => (prev === singleProperty?.listingImages.length - 1 ? 0 : prev + 1));
     };
 
+    const reserveProperty = () => {
+        console.log("Reservation initiated");
+    };
+
+    const handleDateClick = (type) => {
+        setDatePickerType(type);
+        setShowDatePicker(true);
+    };
+
+    const handleCheckInSelect = (date) => {
+        setCheckIn(date);
+        if (!checkOut || date >= checkOut) {
+            const nextDay = new Date(date);
+            nextDay.setDate(nextDay.getDate() + 3);
+            setCheckOut(nextDay);
+        }
+        setShowDatePicker(false);
+    };
+
+    const handleCheckOutSelect = (date) => {
+        setCheckOut(date);
+        setShowDatePicker(false);
+        if (checkIn) {
+            const timeDiff = date.getTime() - checkIn.getTime();
+            const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+            setTotalBookingDay(nights);
+        }
+    };
+
+    const getMinCheckoutDate = () => {
+        if (!checkIn) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 3);
+            return tomorrow;
+        }
+        const minDate = new Date(checkIn);
+        minDate.setDate(minDate.getDate() + 3);
+        return minDate;
+    };
+
     if (loading) {
         return <div className="flex justify-center items-center h-screen">
             <p>Loading...</p>
-        </div>
+        </div>;
     }
 
-    console.log(singleProperty, "abd razzak")
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className='max-w-7xl mx-auto mt-10 md:mt-20'>
-                {/* Image section */}
                 <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-3 md:grid-rows-2 gap-2 md:gap-4 border-2 border-[#f7f7f7] p-2 md:p-3 rounded-xl md:rounded-2xl">
-                    {/* First item spans 2 cols and 2 rows */}
                     <div className="col-span-2 row-span-2 relative">
                         <div className='absolute right-3 bottom-3 md:right-5 md:bottom-5'>
                             <button
@@ -93,11 +174,10 @@ const PropertyDetailsPage = ({ params }) => {
                         <img
                             src={` ${singleProperty?.listingImages[0]?.url}`}
                             alt="Featured"
-                            className="w-full  object-cover max-h-[450px] h-full rounded-xl md:rounded-2xl"
+                            className="w-full object-cover max-h-[450px] h-full rounded-xl md:rounded-2xl"
                         />
                     </div>
 
-                    {/* Other items: map from index 1 onward */}
                     {singleProperty?.listingImages.slice(1, 5).map((img, index) => (
                         <div key={index} className="col-span-1">
                             <img
@@ -109,7 +189,6 @@ const PropertyDetailsPage = ({ params }) => {
                     ))}
                 </div>
 
-                {/* Content */}
                 <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mt-8 md:mt-10'>
                     <div className='md:col-span-3 md:pr-6'>
                         <div className='border-b-2 border-[#f7f7f7] pb-4'>
@@ -136,130 +215,16 @@ const PropertyDetailsPage = ({ params }) => {
                         <div className='border-b-2 border-[#f7f7f7] py-6 md:py-10'>
                             <h2 className='text-2xl md:text-3xl font-bold pb-6 md:pb-10'>Property Amenities</h2>
                             <div className='grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-10 max-w-2xl'>
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Loft-style Bed
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Bathroom
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-
-
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Kitchen
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Living Area
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Storage
-
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Amazing view
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Infinity pool
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Gym
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        On-site spa
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Children’s area
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        24/7 concierge
-                                    </p>
-                                </div>
-
-
-                                <div className='flex flex-col justify-center text-center'>
-                                    <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                        <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
-                                    </p>
-                                    <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                        Private parking
-
-                                    </p>
-                                </div>
-
+                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item) => (
+                                    <div key={item} className='flex flex-col justify-center text-center'>
+                                        <p className="text-[#141414] font-bold mb-2 mx-auto">
+                                            <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
+                                        </p>
+                                        <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
+                                            Amenity {item}
+                                        </p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
 
@@ -272,21 +237,17 @@ const PropertyDetailsPage = ({ params }) => {
                                         <div className='flex justify-between'>
                                             <span>Check-in: </span>
                                             <span className='font-bold'>
-                                                {
-                                                    singleProperty?.checkInTimeStart >= 12
-                                                        ? String(singleProperty?.checkInTimeStart - 12).padStart(2, '0') + ":00 pm"
-                                                        : String(singleProperty?.checkInTimeStart).padStart(2, '0') + ":00 am"
-                                                }
+                                                {singleProperty?.checkInTimeStart >= 12
+                                                    ? String(singleProperty?.checkInTimeStart - 12).padStart(2, '0') + ":00 pm"
+                                                    : String(singleProperty?.checkInTimeStart).padStart(2, '0') + ":00 am"}
                                             </span>
                                         </div>
                                         <div className='flex justify-between'>
                                             <span>Check-out: </span>
                                             <span className='font-bold'>
-                                                {
-                                                    singleProperty?.checkOutTime >= 12
-                                                        ? String(singleProperty?.checkOutTime - 12).padStart(2, '0') + ":00 pm"
-                                                        : String(singleProperty?.checkOutTime).padStart(2, '0') + ":00 am"
-                                                }
+                                                {singleProperty?.checkOutTime >= 12
+                                                    ? String(singleProperty?.checkOutTime - 12).padStart(2, '0') + ":00 pm"
+                                                    : String(singleProperty?.checkOutTime).padStart(2, '0') + ":00 am"}
                                             </span>
                                         </div>
                                     </div>
@@ -340,23 +301,58 @@ const PropertyDetailsPage = ({ params }) => {
                         </div>
                     </div>
 
-                    {/* Booking sidebar */}
-                    <div className='mt-6 md:mt-0'>
+                    <div className='mt-6 md:mt-0 relative'>
                         <div className='border-2 border-[#f7f7f7] p-3 md:p-4 rounded-xl md:rounded-2xl sticky top-4'>
                             <div className='flex gap-3 md:gap-4'>
                                 <h2 className='text-xl md:text-2xl font-bold'>AED {singleProperty?.price}  </h2>
                                 <span className='mt-1 text-black text-sm md:text-base'>per night</span>
                             </div>
-                            <div className='mt-3 md:mt-4 border-2 rounded-lg md:rounded-xl p-2 border-[#bc7c37]'>
+                            
+                            {/* Date selection with popup */}
+                            <div className='mt-3 md:mt-4 border-2 rounded-lg md:rounded-xl p-2 border-[#bc7c37] relative'>
                                 <p className='font-bold text-base md:text-[18px]'>{totalBookingDay} nights</p>
-                                <p className='flex justify-between text-sm md:text-[16px]'>
-                                    <span>{checkIn?.toLocaleDateString() || "Add date"}</span>
-                                    <span>{checkOut?.toLocaleDateString() ||  "Add date"}</span>
-                                </p>
+                                <div className='flex justify-between text-sm md:text-[16px]'>
+                                    <span 
+                                        className="cursor-pointer"
+                                        onClick={() => handleDateClick('checkIn')}
+                                    >
+                                        {checkIn?.toLocaleDateString() || "Add date"}
+                                    </span>
+                                    <span 
+                                        className="cursor-pointer"
+                                        onClick={() => handleDateClick('checkOut')}
+                                    >
+                                        {checkOut?.toLocaleDateString() || "Add date"}
+                                    </span>
+                                </div>
+
+                                {showDatePicker && (
+                                    <div 
+                                        ref={datePickerRef}
+                                        className="absolute top-full right-0 mt-2 bg-white shadow-lg p-4 rounded-xl z-50 border border-gray-200"
+                                    >
+                                        <DatePicker
+                                            selected={datePickerType === 'checkIn' ? checkIn : checkOut}
+                                            onChange={datePickerType === 'checkIn' ? handleCheckInSelect : handleCheckOutSelect}
+                                            minDate={datePickerType === 'checkOut' ? getMinCheckoutDate() : new Date()}
+                                            maxDate={addMonths(new Date(), 12)}
+                                            inline
+                                              monthsShown={2}
+                                            calendarClassName="rounded-lg flex flex-col md:flex-row"
+                                            shouldCloseOnSelect={true}
+                                        />
+                                    </div>
+                                )}
                             </div>
 
-                            <button
-                                className="mt-3 md:mt-4 bg-[#bc7c37] hover:bg-[#bc7c37] font-bold flex w-full justify-center text-white px-4 py-2 md:px-5 md:py-3 rounded-full text-base md:text-[18px] uppercase"
+                            <button 
+                                onClick={() => reserveProperty()} 
+                                disabled={checkIn == null || checkOut == null || !activeReserveButton}
+                                className={`mt-3 md:mt-4 font-bold flex w-full justify-center px-4 py-2 md:px-5 md:py-3 rounded-full text-base md:text-[18px] uppercase ${
+                                    checkIn == null || checkOut == null || !activeReserveButton 
+                                        ? "bg-[#bc7c37b7] cursor-not-allowed" 
+                                        : "bg-[#bc7c37] hover:bg-[#e69500]"
+                                } text-white`}
                             >
                                 Reserve
                             </button>
@@ -438,18 +434,15 @@ const PropertyDetailsPage = ({ params }) => {
                                 your Guest Relations Officer
                             </p>
                         </div>
-
-
                     </div>
                 </div>
             </div>
 
-            {/* Popup Slider */}
             {isPopupOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm transition-all duration-300">
                     <button
                         onClick={closePopup}
-                        className="absolute top-4 right-4 md:top-6 md:right-6 text-white text-3xl md:text-4xl  cursor-pointer transition duration-200"
+                        className="absolute top-4 right-4 md:top-6 md:right-6 text-white text-3xl md:text-4xl cursor-pointer transition duration-200"
                     >
                         &times;
                     </button>
@@ -463,14 +456,14 @@ const PropertyDetailsPage = ({ params }) => {
 
                         <button
                             onClick={goToPrevious}
-                            className="absolute left-2 md:left-5 top-1/2 -translate-y-1/2 bg-white  cursor-pointer text-black rounded-full px-3 py-1 shadow-lg backdrop-blur-md transition"
+                            className="absolute left-2 md:left-5 top-1/2 -translate-y-1/2 bg-white cursor-pointer text-black rounded-full px-3 py-1 shadow-lg backdrop-blur-md transition"
                         >
                             <span className="text-xl md:text-2xl font-bold">&lt;</span>
                         </button>
 
                         <button
                             onClick={goToNext}
-                            className="absolute right-2 md:right-5 top-1/2 -translate-y-1/2 bg-white cursor-pointer  text-black rounded-full px-3 py-1 shadow-lg backdrop-blur-md transition"
+                            className="absolute right-2 md:right-5 top-1/2 -translate-y-1/2 bg-white cursor-pointer text-black rounded-full px-3 py-1 shadow-lg backdrop-blur-md transition"
                         >
                             <span className="text-xl md:text-2xl font-bold">&gt;</span>
                         </button>
