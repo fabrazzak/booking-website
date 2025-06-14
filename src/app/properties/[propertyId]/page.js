@@ -169,7 +169,7 @@ const PropertyDetailsPage = ({ params }) => {
                         <div className='absolute right-3 bottom-3 md:right-5 md:bottom-5'>
                             <button
                                 onClick={openPopup}
-                                className='bg-white rounded-full font-bold px-2 md:px-3 cursor-pointer py-1 text-sm md:text-base hover:bg-gray-100 transition'
+                                className='bg-white text-black rounded-full font-bold px-2 md:px-3 cursor-pointer py-1 text-sm md:text-base hover:bg-gray-100 transition'
                             >
                                 More Photos
                             </button>
