@@ -160,7 +160,7 @@ const PropertyDetailsPage = ({ params }) => {
 
     return (
         <div className="px-4 sm:px-6 lg:px-8">
-            <div className='max-w-7xl mx-auto mt-10 md:mt-20'>
+            <div className='max-w-7xl mx-auto mt-10 md:mt-15'>
                 <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-3 md:grid-rows-2 gap-2 md:gap-4 border-2 border-[#f7f7f7] p-2 md:p-3 rounded-xl md:rounded-2xl">
                     <div className="col-span-2 row-span-2 relative">
                         <div className='absolute right-3 bottom-3 md:right-5 md:bottom-5'>

@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { FaMapMarkerAlt } from "react-icons/fa";
-import { IoBedOutline } from "react-icons/io5";
+import { FaBed} from "react-icons/fa6";
 import { LiaBathSolid } from "react-icons/lia";
 import { IoMdEye } from "react-icons/io";
+import { MdShower } from 'react-icons/md';
 
 const PropertyCard = ({ property }) => {
   return (
@@ -25,25 +26,20 @@ const PropertyCard = ({ property }) => {
         </div>
 
         {/* Bottom Part - Content */}
-        <div className="pt-4 flex justify-between items-start">
-          {/* Left Side - Property Info */}
+        <div className=" flex justify-between items-start mt-4">         
           <div>
-            <h3 className=" text-md mb-1 text-[#141414]">{property.airbnbName.slice(0,35)}</h3>
-            <p className="text-[#141414] text-sm font-bold mb-2 flex items-center  gap-2">
-              {property?.bedroomsNumber} <IoBedOutline className='text-xl' /> | {property?.bathroomsNumber}<LiaBathSolid className='text-xl' />
+            <h3 className=" text-md  text-[#141414] mb-1">{property.airbnbName.slice(0,35)}</h3>
+            <p className="text-[#141414] text-sm font-bold  flex items-center  gap-2">
+              {property?.bedroomsNumber} <FaBed className='text-xl'/> | {property?.bathroomsNumber}<MdShower className='text-xl' />
             </p>
-          </div>
-
-          {/* Right Side - Price & Book Button */}
-          <div className="text-right">
-          
+          </div>         
+          <div className="text-right">          
              <button 
-              className="mt-2 bg-[#bc7c37] hover:bg-[#bc7c37] text-white px-5 py-3 rounded-md text-sm uppercase"
+              className="bg-[#bc7c37] hover:bg-[#bc7c37] text-white px-5 py-3 rounded-md text-sm uppercase"
               // onClick={(e) => e.preventDefault()} // Prevent link navigation
             >
               Book Now
-            </button>
-            
+            </button>           
            
           </div>
         </div>
