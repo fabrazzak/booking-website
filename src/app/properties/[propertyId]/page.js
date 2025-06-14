@@ -195,8 +195,8 @@ const PropertyDetailsPage = ({ params }) => {
                 <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mt-8 md:mt-10'>
                     <div className='md:col-span-3 md:pr-6'>
                         <div className='border-b-2 border-[#f7f7f7] pb-4'>
-                            <h2 className='text-2xl md:text-3xl font-bold'>{singleProperty?.name || "Property Title"}</h2>
-                            <p className='font-semibold text-sm md:text-base'>{singleProperty?.address || "Property Address"}</p>
+                            <h2 className='text-2xl md:text-3xl font-bold text-[#141414]'>{singleProperty?.name || "Property Title"}</h2>
+                            <p className='font-semibold text-sm md:text-base text-[#141414]'>{singleProperty?.address || "Property Address"}</p>
                             <p className="text-[#141414] text-sm font-bold mb-3 flex items-center gap-2 pt-3 md:pt-5">
                                 <span>{singleProperty?.bedroomsNumber || 0}</span>
                                 <IoBedOutline className='text-lg md:text-xl' />
@@ -208,7 +208,7 @@ const PropertyDetailsPage = ({ params }) => {
 
                         <div className='border-b-2 border-[#f7f7f7] mt-6 md:mt-10'>
                             <h2 className='text-2xl md:text-3xl font-bold pb-4 md:pb-5'>About</h2>
-                            <p className='pb-6 md:pb-10 text-base md:text-[22px]'>
+                            <p className='pb-6 md:pb-10 text-base md:text-[22px] text-[#141414]'>
                                 Welcome to a serene escape in the heart of Dubai. Located in the iconic Missoni building in
                                 Business Bay, this designer studio by JB Luxe Staycation blends elegance with comfort — just
                                 15 minutes from the Burj Khalifa, Dubai Mall, and pristine beaches.
@@ -216,7 +216,7 @@ const PropertyDetailsPage = ({ params }) => {
                         </div>
 
                         <div className='border-b-2 border-[#f7f7f7] py-6 md:py-10'>
-                            <h2 className='text-2xl md:text-3xl font-bold pb-6 md:pb-10'>Property Amenities</h2>
+                            <h2 className='text-2xl md:text-3xl font-bold pb-6 md:pb-10 text-[#141414]'>Property Amenities</h2>
                             <div className='grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-10 max-w-2xl'>
                                 {singleProperty?.listingAmenities?.map((item, index) => (
                                     <div key={index}  className='flex flex-col justify-center text-center'>
@@ -233,22 +233,22 @@ const PropertyDetailsPage = ({ params }) => {
                         </div>
 
                         <div className='pt-6 md:pt-10 pb-5'>
-                            <h2 className='text-2xl md:text-3xl font-bold pb-6 md:pb-10'>House Rules</h2>
+                            <h2 className='text-2xl md:text-3xl font-bold pb-6 md:pb-10 text-[#141414]'>House Rules</h2>
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10'>
                                 <div>
                                     <div className='border-b-2 border-[#f7f7f7] pb-4 md:pb-5'>
                                         <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Check-In & Check-Out</p>
                                         <div className='flex justify-between'>
-                                            <span>Check-in: </span>
-                                            <span className='font-bold'>
+                                            <span className='text-[#141414]'>Check-in: </span>
+                                            <span className='font-bold text-[#141414]'>
                                                 {singleProperty?.checkInTimeStart >= 12
                                                     ? String(singleProperty?.checkInTimeStart - 12).padStart(2, '0') + ":00 pm"
                                                     : String(singleProperty?.checkInTimeStart).padStart(2, '0') + ":00 am"}
                                             </span>
                                         </div>
                                         <div className='flex justify-between'>
-                                            <span>Check-out: </span>
-                                            <span className='font-bold'>
+                                            <span className='text-[#141414]'>Check-out: </span>
+                                            <span className='font-bold text-[#141414]'>
                                                 {singleProperty?.checkOutTime >= 12
                                                     ? String(singleProperty?.checkOutTime - 12).padStart(2, '0') + ":00 pm"
                                                     : String(singleProperty?.checkOutTime).padStart(2, '0') + ":00 am"}
@@ -377,7 +377,7 @@ const PropertyDetailsPage = ({ params }) => {
 
             <div className='bg-slate-50 mt-6 md:mt-10'>
                 <div className='max-w-7xl mx-auto py-6 md:py-10'>
-                    <h2 className='text-2xl md:text-3xl font-bold'>Other Notes</h2>
+                    <h2 className='text-2xl md:text-3xl font-bold text-[#141414]'>Other Notes</h2>
 
                     <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8 lg:gap-15 pt-4 md:pt-5'>
                         <div className=''>
