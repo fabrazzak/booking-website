@@ -18,7 +18,7 @@ const PropertyDetailsPage = ({ params }) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [datePickerType, setDatePickerType] = useState('checkIn');
     const datePickerRef = useRef(null);
-    
+
     const { checkOut, checkIn, guests, setCheckOut, setCheckIn, setGuests, totalBookingDay, setTotalBookingDay } = useMyContext();
     const { propertyId } = React.use(params);
 
@@ -84,6 +84,7 @@ const PropertyDetailsPage = ({ params }) => {
         fetchListingData();
     }, [propertyId, checkIn, checkOut]);
 
+    console.log(singleProperty)
     useEffect(() => {
         function handleClickOutside(event) {
             if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
@@ -158,6 +159,8 @@ const PropertyDetailsPage = ({ params }) => {
         </div>;
     }
 
+    console.log(singleProperty)
+
     return (
         <div className="px-4 sm:px-6 lg:px-8">
             <div className='max-w-7xl mx-auto mt-10 md:mt-15'>
@@ -215,13 +218,14 @@ const PropertyDetailsPage = ({ params }) => {
                         <div className='border-b-2 border-[#f7f7f7] py-6 md:py-10'>
                             <h2 className='text-2xl md:text-3xl font-bold pb-6 md:pb-10'>Property Amenities</h2>
                             <div className='grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-10 max-w-2xl'>
-                                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((item) => (
-                                    <div key={item} className='flex flex-col justify-center text-center'>
+                                {singleProperty?.listingAmenities?.map((item, index) => (
+                                    <div key={index}  className='flex flex-col justify-center text-center'>
                                         <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                            <IoBedOutline className='text-4xl md:text-6xl mx-auto' />
+                                            <IoBedOutline className='text-2xl md:text-4xl mx-auto' />
                                         </p>
-                                        <p className="text-[#141414] font-bold mb-2 text-base md:text-xl">
-                                            Amenity {item}
+                                        <p className="text-[#141414] font-bold mb-2 text-base md:text-lg">
+                                             {item.amenityName
+}
                                         </p>
                                     </div>
                                 ))}
@@ -307,18 +311,18 @@ const PropertyDetailsPage = ({ params }) => {
                                 <h2 className='text-xl md:text-2xl font-bold'>AED {singleProperty?.price}  </h2>
                                 <span className='mt-1 text-black text-sm md:text-base'>per night</span>
                             </div>
-                            
+
                             {/* Date selection with popup */}
                             <div className='mt-3 md:mt-4 border-2 rounded-lg md:rounded-xl p-2 border-[#bc7c37] relative'>
                                 <p className='font-bold text-base md:text-[18px]'>{totalBookingDay} nights</p>
                                 <div className='flex justify-between text-sm md:text-[16px]'>
-                                    <span 
+                                    <span
                                         className="cursor-pointer"
                                         onClick={() => handleDateClick('checkIn')}
                                     >
                                         {checkIn?.toLocaleDateString() || "Add date"}
                                     </span>
-                                    <span 
+                                    <span
                                         className="cursor-pointer"
                                         onClick={() => handleDateClick('checkOut')}
                                     >
@@ -327,7 +331,7 @@ const PropertyDetailsPage = ({ params }) => {
                                 </div>
 
                                 {showDatePicker && (
-                                    <div 
+                                    <div
                                         ref={datePickerRef}
                                         className="absolute top-full right-0 mt-2 bg-white shadow-lg p-4 rounded-xl z-50 border border-gray-200"
                                     >
@@ -337,7 +341,7 @@ const PropertyDetailsPage = ({ params }) => {
                                             minDate={datePickerType === 'checkOut' ? getMinCheckoutDate() : new Date()}
                                             maxDate={addMonths(new Date(), 12)}
                                             inline
-                                              monthsShown={2}
+                                            monthsShown={2}
                                             calendarClassName="rounded-lg flex flex-col md:flex-row"
                                             shouldCloseOnSelect={true}
                                         />
@@ -345,14 +349,13 @@ const PropertyDetailsPage = ({ params }) => {
                                 )}
                             </div>
 
-                            <button 
-                                onClick={() => reserveProperty()} 
+                            <button
+                                onClick={() => reserveProperty()}
                                 disabled={checkIn == null || checkOut == null || !activeReserveButton}
-                                className={`mt-3 md:mt-4 font-bold flex w-full justify-center px-4 py-2 md:px-5 md:py-3 rounded-full text-base md:text-[18px] uppercase ${
-                                    checkIn == null || checkOut == null || !activeReserveButton 
-                                        ? "bg-[#bc7c37b7] cursor-not-allowed" 
-                                        : "bg-[#bc7c37] hover:bg-[#e69500]"
-                                } text-white`}
+                                className={`mt-3 md:mt-4 font-bold flex w-full justify-center px-4 py-2 md:px-5 md:py-3 rounded-full text-base md:text-[18px] uppercase ${checkIn == null || checkOut == null || !activeReserveButton
+                                    ? "bg-[#bc7c37b7] cursor-not-allowed"
+                                    : "bg-[#bc7c37] hover:bg-[#e69500]"
+                                    } text-white`}
                             >
                                 Reserve
                             </button>
@@ -398,12 +401,32 @@ const PropertyDetailsPage = ({ params }) => {
                         </div>
 
                         <div className=''>
+                           
+
                             <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Tourism Tax</p>
                             <p className='pb-6 md:pb-10'>
                                 A standard Tourism Tax, payable to the
                                 DTCM (Dubai Tourism & Commerce
                                 Marketing), is charged per room per night.
                             </p>
+
+
+
+                             <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Guest Registration</p>
+                            <p className='pb-6 md:pb-10'>
+                                All property occupants must provide valid
+                                identification (GCC ID / Passport). This is a
+                                legal requirement for registration with the
+                                DTCM (Dubai Tourism & Commerce
+                                Marketing), and necessary for property
+                                access as stipulated by the property
+                                developers' security departments.
+                            </p>
+
+
+                        </div>
+
+                        <div className=''>
 
                             <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Cancellation Policy</p>
                             <p className='pb-6 md:pb-10'>
@@ -413,26 +436,8 @@ const PropertyDetailsPage = ({ params }) => {
                                 to show up for your scheduled check-in, no
                                 refund will be issued.
                             </p>
-                        </div>
 
-                        <div className=''>
-                            <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Refundable Damage Deposit</p>
-                            <p className='pb-6 md:pb-10'>
-                                A refundable security deposit is obtained at
-                                the time of booking and will be returned in
-                                full after the checkout clearance. Refer
-                                Booking Terms for more information.
-                            </p>
 
-                            <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Checkout Cleaning Fee</p>
-                            <p className='pb-6 md:pb-10'>
-                                A one-time check-out cleaning fee applies
-                                to all bookings for a thorough clean upon
-                                checkout, preparing the property for our
-                                next guest. Additional cleaning services can
-                                be added at booking or during your stay via
-                                your Guest Relations Officer
-                            </p>
                         </div>
                     </div>
                 </div>
