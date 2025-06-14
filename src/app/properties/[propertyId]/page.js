@@ -209,7 +209,7 @@ const PropertyDetailsPage = ({ params }) => {
                         <div className='border-b-2 border-[#f7f7f7] mt-6 md:mt-10'>
                             <h2 className='text-2xl md:text-3xl font-bold pb-4 md:pb-5'>About</h2>
                             <p className='pb-6 md:pb-10 text-base md:text-[22px] text-[#141414]'>
-                               {singleProperty.description}
+                               {singleProperty?.description}
                             </p>
                         </div>
 
