@@ -209,9 +209,7 @@ const PropertyDetailsPage = ({ params }) => {
                         <div className='border-b-2 border-[#f7f7f7] mt-6 md:mt-10'>
                             <h2 className='text-2xl md:text-3xl font-bold pb-4 md:pb-5'>About</h2>
                             <p className='pb-6 md:pb-10 text-base md:text-[22px] text-[#141414]'>
-                                Welcome to a serene escape in the heart of Dubai. Located in the iconic Missoni building in
-                                Business Bay, this designer studio by JB Luxe Staycation blends elegance with comfort — just
-                                15 minutes from the Burj Khalifa, Dubai Mall, and pristine beaches.
+                               {singleProperty.description}
                             </p>
                         </div>
 
