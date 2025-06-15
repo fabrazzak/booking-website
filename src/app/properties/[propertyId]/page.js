@@ -8,6 +8,11 @@ import { useMyContext } from '@/context/MyContext';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { addMonths } from 'date-fns';
+import { FaArrowAltCircleLeft, FaArrowCircleRight, FaBaby, FaBed, FaCar, FaChair, FaDumbbell, FaFireExtinguisher, FaParking, FaShower, FaSnowflake, FaSwimmer, FaTv, FaUtensils, FaWifi } from 'react-icons/fa';
+import { MdBalcony, MdIron, MdOutlineDry, MdShower, MdSmokeFree } from 'react-icons/md';
+import { FaKitchenSet } from 'react-icons/fa6';
+import { toast, ToastContainer } from 'react-toastify';
+import Link from 'next/link';
 
 const PropertyDetailsPage = ({ params }) => {
     const [singleProperty, setSingleProperty] = useState(null);
@@ -18,9 +23,35 @@ const PropertyDetailsPage = ({ params }) => {
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [datePickerType, setDatePickerType] = useState('checkIn');
     const datePickerRef = useRef(null);
+    const [showGuestPopup, setShowGuestPopup] = useState(false);
 
     const { checkOut, checkIn, guests, setCheckOut, setCheckIn, setGuests, totalBookingDay, setTotalBookingDay } = useMyContext();
     const { propertyId } = React.use(params);
+
+    const amenityIcons = {
+        "Swimming pool": <FaSwimmer />,
+        "Free WiFi": <FaWifi />,
+        "Wireless": <FaWifi />,
+        "Internet": <FaWifi />,
+        "TV": <FaTv />,
+        "Smart TV": <FaTv />,
+        "Gym": <FaDumbbell />,
+        "Fitness center": <FaDumbbell />,
+        "Free parking": <FaParking />,
+        "Kitchen": <FaKitchenSet />,
+        "Shower": <FaShower />,
+        "Baby crib": <FaBaby />,
+        "Electric vehicle charger": <FaCar />,
+        "Kitchen utensils": <FaUtensils />,
+        "Air conditioning": <FaSnowflake />,
+        "High chair": <FaChair />,
+        "Fire Extinguisher": <FaFireExtinguisher />,
+        "Extra pillows and blankets": <FaBed />,
+        "Balcony": <MdBalcony />,
+        "Smoke detector": <MdSmokeFree />,
+        "Iron": <MdIron />,
+        "Dryer": <MdOutlineDry />,
+    };
 
     useEffect(() => {
         const fetchListingData = async () => {
@@ -82,9 +113,8 @@ const PropertyDetailsPage = ({ params }) => {
             }
         };
         fetchListingData();
-    }, [propertyId, checkIn, checkOut]);
+    }, [propertyId, checkIn, checkOut,]);
 
-    console.log(singleProperty)
     useEffect(() => {
         function handleClickOutside(event) {
             if (datePickerRef.current && !datePickerRef.current.contains(event.target)) {
@@ -113,9 +143,7 @@ const PropertyDetailsPage = ({ params }) => {
         setCurrentSlide((prev) => (prev === singleProperty?.listingImages.length - 1 ? 0 : prev + 1));
     };
 
-    const reserveProperty = () => {
-        console.log("Reservation initiated");
-    };
+
 
     const handleDateClick = (type) => {
         setDatePickerType(type);
@@ -153,31 +181,53 @@ const PropertyDetailsPage = ({ params }) => {
         return minDate;
     };
 
+    const handleGuestChange = (type, operation) => {
+        setGuests(prev => ({
+            ...prev,
+            [type]: operation === 'increment' ?
+                Math.min(prev[type] + 1, type === 'adults' ? 10 : 5) :
+                Math.max(prev[type] - 1, type === 'adults' ? 1 : 0)
+        }));
+    };
+
+    const checkGuestCapacity = () => {
+        const totalGuests = guests.adults + guests.children;
+        const maxCapacity = singleProperty?.bedsNumber || 0;
+
+        if (totalGuests > maxCapacity) {
+            toast(`❗ This property can only accommodate ${maxCapacity} guests maximum.`);
+            return false;
+        }
+        toast(` This property is Available`);
+        return true;
+    };
+
+    const handleGuestPopupDone = () => {
+        if (checkGuestCapacity()) {
+            setActiveReserveButton(true)
+        }
+        else {
+            setActiveReserveButton(false)
+        }
+
+        setShowGuestPopup(false);
+    };
+
+    const description = singleProperty?.description || "";
+
+    const lines = description.split(/(?=🛏|🛋|🍽|🍳|🚿|🌇|🌬|📶|🏋️|🏊|🌿|🎮|🧸|🛎|🅿️|✅|🏠|🏢)/);
+    console.log(singleProperty)
     if (loading) {
         return <div className="flex justify-center items-center h-screen">
             <p>Loading...</p>
         </div>;
     }
 
-    const description = singleProperty?.description || "";
-
-    const lines = description.split(/(?=🛏|🛋|🍽|🍳|🚿|🌇|🌬|📶|🏋️|🏊|🌿|🎮|🧸|🛎|🅿️|✅|🏠|🏢)/);
-
-    console.log(singleProperty)
-
     return (
         <div className="px-4 sm:px-6 lg:px-8 bg-white">
             <div className='max-w-7xl mx-auto mt-10 md:mt-15'>
                 <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-3 md:grid-rows-2 gap-2 md:gap-4 border-2 border-[#f7f7f7] p-2 md:p-3 rounded-xl md:rounded-2xl">
                     <div className="col-span-2 row-span-2 relative">
-                        <div className='absolute right-3 bottom-3 md:right-5 md:bottom-5'>
-                            <button
-                                onClick={openPopup}
-                                className='bg-white text-black rounded-full font-bold px-2 md:px-3 cursor-pointer py-1 text-sm md:text-base hover:bg-gray-100 transition'
-                            >
-                                More Photos
-                            </button>
-                        </div>
                         <img
                             src={` ${singleProperty?.listingImages[0]?.url}`}
                             alt="Featured"
@@ -186,54 +236,60 @@ const PropertyDetailsPage = ({ params }) => {
                     </div>
 
                     {singleProperty?.listingImages.slice(1, 5).map((img, index) => (
-                        <div key={index} className="col-span-1">
+                        <div key={index} className="col-span-1 relative">
                             <img
                                 src={img?.url}
                                 alt={`Image ${index + 1}`}
                                 className="w-full max-h-[215px] h-full object-cover rounded-xl md:rounded-2xl"
                             />
+                            {index === 3 &&
+                                <div className='absolute right-3 bottom-3 md:right-5 md:bottom-5'>
+                                    <button
+                                        onClick={openPopup}
+                                        className='bg-white text-black rounded-full font-bold px-2 md:px-3 cursor-pointer py-1 text-sm md:text-base hover:bg-gray-100 transition'
+                                    >
+                                        More Photos
+                                    </button>
+                                </div>
+                            }
                         </div>
                     ))}
                 </div>
 
                 <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mt-8 md:mt-10'>
                     <div className='md:col-span-3 md:pr-6'>
-                        <div className='border-b-2 border-[#f7f7f7] pb-4'>
+                        <div className='border-b-2 border-[#f7f7f7] pb-2'>
                             <h2 className='text-2xl md:text-3xl font-bold text-[#141414]'>{singleProperty?.name || "Property Title"}</h2>
-                            <p className='font-semibold text-sm md:text-base text-[#141414]'>{singleProperty?.address || "Property Address"}</p>
+                            <p className='font-semibold text-sm md:text-base text-[#141414]'>{singleProperty?.publicAddress || "Property Address"}</p>
                             <p className="text-[#141414] text-sm font-bold mb-3 flex items-center gap-2 pt-3 md:pt-5">
                                 <span>{singleProperty?.bedroomsNumber || 0}</span>
-                                <IoBedOutline className='text-lg md:text-xl' />
+                                <FaBed className='text-lg md:text-xl' />
                                 <span>|</span>
                                 <span>{singleProperty?.bathroomsNumber || 0}</span>
-                                <LiaBathSolid className='text-lg md:text-xl' />
+                                <MdShower className='text-lg md:text-xl' />
                             </p>
                         </div>
 
                         <div className='border-b-2 border-[#f7f7f7] mt-6 md:mt-10'>
                             <h2 className='text-2xl md:text-3xl font-bold pb-4 md:pb-5'>About</h2>
-                            <p className='pb-6 md:pb-10 text-base md:text-[22px] text-[#141414]'>
-
+                            <div className='pb-6 md:pb-10 text-base md:text-[22px] text-[#141414]'>
                                 {lines.map((line, index) => (
-                                    <p key={index} className="leading-relaxed">{line.trim()}</p>
+                                    <p key={index} className="leading-relaxed"> {line.trim()} </p>
                                 ))}
-                            </p>
+                            </div>
                         </div>
 
                         <div className='border-b-2 border-[#f7f7f7] py-6 md:py-10'>
                             <h2 className='text-2xl md:text-3xl font-bold pb-6 md:pb-10 text-[#141414]'>Property Amenities</h2>
-                            <div className='grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-10 max-w-2xl'>
-                                {singleProperty?.listingAmenities?.map((item, index) => (
-                                    <div key={index} className='flex flex-col justify-center text-center'>
-                                        <p className="text-[#141414] font-bold mb-2 mx-auto">
-                                            <IoBedOutline className='text-2xl md:text-4xl mx-auto' />
-                                        </p>
-                                        <p className="text-[#141414] font-bold mb-2 text-base md:text-lg">
-                                            {item.amenityName
-                                            }
-                                        </p>
-                                    </div>
-                                ))}
+                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                {singleProperty?.listingAmenities
+                                    .filter(amenity => amenityIcons[amenity.amenityName])
+                                    .map(amenity => (
+                                        <div key={amenity.id} className="flex items-center gap-2 text-gray-700">
+                                            <span className="text-xl text-primary">{amenityIcons[amenity.amenityName]}</span>
+                                            <span>{amenity.amenityName}</span>
+                                        </div>
+                                    ))}
                             </div>
                         </div>
 
@@ -267,7 +323,6 @@ const PropertyDetailsPage = ({ params }) => {
                                                     __html: singleProperty?.houseRules?.replace(/✅/g, '<br/><br/>✅'),
                                                 }}
                                             />
-
                                         </p>
                                     </div>
                                 </div>
@@ -313,7 +368,6 @@ const PropertyDetailsPage = ({ params }) => {
                                 <span className='mt-1 text-black text-sm md:text-base'>per night</span>
                             </div>
 
-                            {/* Date selection with popup */}
                             <div className='mt-3 md:mt-4 border-2 rounded-lg md:rounded-xl p-2 border-[#bc7c37] relative'>
                                 <p className='font-bold text-base md:text-[18px]'>{totalBookingDay} nights</p>
                                 <div className='flex justify-between text-sm md:text-[16px]'>
@@ -350,16 +404,80 @@ const PropertyDetailsPage = ({ params }) => {
                                 )}
                             </div>
 
-                            <button
-                                onClick={() => reserveProperty()}
-                                disabled={checkIn == null || checkOut == null || !activeReserveButton}
-                                className={`mt-3 md:mt-4 font-bold flex w-full justify-center px-4 py-2 md:px-5 md:py-3 rounded-full text-base md:text-[18px] uppercase ${checkIn == null || checkOut == null || !activeReserveButton
-                                    ? "bg-[#bc7c37b7] cursor-not-allowed"
-                                    : "bg-[#bc7c37] hover:bg-[#e69500]"
-                                    } text-white`}
-                            >
-                                Reserve
-                            </button>
+                            <div className="mt-3 md:mt-4 border-2 rounded-lg md:rounded-xl p-2 border-[#bc7c37] relative">
+                                <p
+                                    className="cursor-pointer font-bold text-base md:text-[18px]"
+                                    onClick={() => setShowGuestPopup(true)}
+                                >
+                                    {guests.adults + guests.children} guest{guests.adults + guests.children !== 1 ? 's' : ''}
+                                </p>
+                                <p className="text-sm md:text-[16px] text-gray-600">
+                                    {guests.adults} adult{guests.adults !== 1 ? 's' : ''}, {guests.children} child{guests.children !== 1 ? 'ren' : ''}
+                                </p>
+
+                                {showGuestPopup && (
+                                    <div className="absolute top-full left-0 mt-2 bg-white shadow-lg p-5 rounded-2xl z-50 w-full border border-gray-200">
+                                        {[
+                                            { type: 'adults', label: 'Adults', description: 'Ages 13 or above' },
+                                            { type: 'children', label: 'Children', description: 'Ages 2-12' },
+                                        ].map(({ type, label, description }) => (
+                                            <div className="flex justify-between items-center mb-4 border-b-1 pb-4 border-[#f7f7f7]" key={type}>
+                                                <div className="flex flex-col">
+                                                    <p className="capitalize text-gray-700 font-medium">{label}</p>
+                                                    <p className="text-sm text-gray-500">{description}</p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleGuestChange(type, 'decrement');
+                                                        }}
+                                                        className="w-8 h-8 text-lg border rounded-full flex items-center justify-center shadow"
+                                                        disabled={type === 'adults' && guests[type] <= 1}
+                                                    >
+                                                        -
+                                                    </button>
+                                                    <span className="min-w-[20px] text-center font-semibold">
+                                                        {guests[type]}
+                                                    </span>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleGuestChange(type, 'increment');
+                                                        }}
+                                                        className="w-8 h-8 text-lg border rounded-full flex items-center justify-center shadow"
+                                                        disabled={
+                                                            (type === 'adults' && guests[type] >= 10) ||
+                                                            (type === 'children' && guests[type] >= 5)
+                                                        }
+                                                    >
+                                                        +
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ))}
+
+                                        <button
+                                            onClick={handleGuestPopupDone}
+                                            className="mt-4 bg-[#bc7c37] text-white px-4 py-2 rounded-full w-full"
+                                        >
+                                            Done
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        
+                                <Link href='/payment'
+
+                                    disabled={checkIn == null || checkOut == null || !activeReserveButton}
+                                    className={`mt-3 md:mt-4 font-bold flex w-full justify-center px-4 py-2 md:px-5 md:py-3 rounded-full text-base md:text-[18px] uppercase ${checkIn == null || checkOut == null || !activeReserveButton
+                                        ? "bg-[#bc7c37b7] cursor-not-allowed"
+                                        : "bg-[#bc7c37] hover:bg-[#e69500]"
+                                        } text-white`}
+                                >
+                                    Reserve
+                                </Link>
+                           
 
                             <div className='flex flex-col gap-2 md:gap-3 mt-3 md:mt-4 border-t-2 border-[#f7f7f7] pt-3 md:pt-4 pb-6 md:pb-10'>
                                 <p className='flex justify-between text-sm md:text-[16px]'>
@@ -402,16 +520,12 @@ const PropertyDetailsPage = ({ params }) => {
                         </div>
 
                         <div className=''>
-
-
                             <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Tourism Tax</p>
                             <p className='pb-6 md:pb-10'>
                                 A standard Tourism Tax, payable to the
                                 DTCM (Dubai Tourism & Commerce
                                 Marketing), is charged per room per night.
                             </p>
-
-
 
                             <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Guest Registration</p>
                             <p className='pb-6 md:pb-10'>
@@ -423,12 +537,9 @@ const PropertyDetailsPage = ({ params }) => {
                                 access as stipulated by the property
                                 developers' security departments.
                             </p>
-
-
                         </div>
 
                         <div className=''>
-
                             <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Cancellation Policy</p>
                             <p className='pb-6 md:pb-10'>
                                 Non-Refundable: All reservations are non-
@@ -437,8 +548,6 @@ const PropertyDetailsPage = ({ params }) => {
                                 to show up for your scheduled check-in, no
                                 refund will be issued.
                             </p>
-
-
                         </div>
                     </div>
                 </div>
@@ -462,16 +571,16 @@ const PropertyDetailsPage = ({ params }) => {
 
                         <button
                             onClick={goToPrevious}
-                            className="absolute left-2 md:left-5 top-1/2 -translate-y-1/2 bg-white cursor-pointer text-black rounded-full px-3 py-1 shadow-lg backdrop-blur-md transition"
+                            className="absolute left-2 md:left-5 top-1/2 -translate-y-1/2  cursor-pointer text-black  rounded-full shadow-lg bg-white  transition"
                         >
-                            <span className="text-xl md:text-2xl font-bold">&lt;</span>
+                            <span className="text-xl md:text-2xl font-bold"><FaArrowAltCircleLeft /></span>
                         </button>
 
                         <button
                             onClick={goToNext}
-                            className="absolute right-2 md:right-5 top-1/2 -translate-y-1/2 bg-white cursor-pointer text-black rounded-full px-3 py-1 shadow-lg backdrop-blur-md transition"
+                            className="absolute right-2 md:right-5 top-1/2 -translate-y-1/2  cursor-pointer text-black rounded-full  bg-white shadow-lg  transition"
                         >
-                            <span className="text-xl md:text-2xl font-bold">&gt;</span>
+                            <span className="text-xl md:text-2xl font-bold"><FaArrowCircleRight /></span>
                         </button>
 
                         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm md:text-lg font-medium bg-black/40 px-3 py-1 rounded-full shadow-md">
@@ -479,7 +588,10 @@ const PropertyDetailsPage = ({ params }) => {
                         </div>
                     </div>
                 </div>
+
             )}
+
+            <ToastContainer />
         </div>
     );
 };
