@@ -228,7 +228,7 @@ const PropertyDetailsPage = ({ params }) => {
             <div className='max-w-7xl mx-auto mt-10 md:mt-15'>
                 <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-3 md:grid-rows-2 gap-2 md:gap-4 border-2 border-[#f7f7f7] p-2 md:p-3 rounded-xl md:rounded-2xl">
                     <div className="col-span-2 row-span-2 relative">
-                        <img
+                        <img onClick={openPopup}
                             src={` ${singleProperty?.listingImages[0]?.url}`}
                             alt="Featured"
                             className="w-full object-cover max-h-[450px] h-full rounded-xl md:rounded-2xl"
@@ -237,7 +237,7 @@ const PropertyDetailsPage = ({ params }) => {
 
                     {singleProperty?.listingImages.slice(1, 5).map((img, index) => (
                         <div key={index} className="col-span-1 relative">
-                            <img
+                            <img onClick={openPopup}
                                 src={img?.url}
                                 alt={`Image ${index + 1}`}
                                 className="w-full max-h-[215px] h-full object-cover rounded-xl md:rounded-2xl"
@@ -571,14 +571,14 @@ const PropertyDetailsPage = ({ params }) => {
 
                         <button
                             onClick={goToPrevious}
-                            className="absolute left-2 md:left-5 top-1/2 -translate-y-1/2  cursor-pointer text-black  rounded-full shadow-lg bg-white  transition"
+                            className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2  cursor-pointer text-black  rounded-full shadow-lg bg-white  transition"
                         >
                             <span className="text-xl md:text-2xl font-bold"><FaArrowAltCircleLeft /></span>
                         </button>
 
                         <button
                             onClick={goToNext}
-                            className="absolute right-2 md:right-5 top-1/2 -translate-y-1/2  cursor-pointer text-black rounded-full  bg-white shadow-lg  transition"
+                            className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2  cursor-pointer text-black rounded-full  bg-white shadow-lg  transition"
                         >
                             <span className="text-xl md:text-2xl font-bold"><FaArrowCircleRight /></span>
                         </button>
