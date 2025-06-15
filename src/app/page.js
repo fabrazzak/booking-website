@@ -11,6 +11,7 @@ import { IoClose } from "react-icons/io5";
 import axios from 'axios';
 import { useMyContext } from '@/context/MyContext';
 import { addMonths } from 'date-fns';
+import { toast, ToastContainer } from 'react-toastify';
 
 
 
@@ -61,7 +62,7 @@ export default function SearchBar() {
     if (!checkOut || date >= checkOut) {
       const nextDay = new Date(date);
       nextDay.setDate(nextDay.getDate() + 3);
-      setCheckOut(nextDay);
+      // setCheckOut(nextDay);
       setActiveTab('out-date')
     }
   };
@@ -133,6 +134,32 @@ export default function SearchBar() {
   }, [])
 
   const handleSearch = async () => {
+
+    if ( destinations == null || checkIn == null || checkOut == null || (guests?.adults == 0 && guests?.children == 0) ) {
+        console.log( guests, destinations,checkIn, checkOut,)
+
+      if (destinations == null) {
+        toast("❗ Please select a destination");
+         return false;
+      }
+      if (checkIn == null) {
+        toast("❗ Please select a check-in date");
+         return false;
+      }
+      if (checkOut == null) {
+        toast("❗ Please select a check-out date");
+         return false;
+      }
+      if (guests?.adults == 0 && guests?.children == 0) {
+        toast("❗ Please select number of guests");
+         return false;
+      }
+      
+      return false;
+    }
+
+
+  
     const formatDate = (date) => {
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -448,7 +475,7 @@ export default function SearchBar() {
   return (
     <div className="w-full flex justify-center relative flex-col">
       <div className='bg-[#f7f7f7] border-[#bc7c37] border-b-1'>
-        <header className='w-full flex justify-center py-8 md:py-10 max-w-7xl mx-auto z-50 relative'>
+        <header className='w-full flex justify-center py-6 md:py-12 max-w-7xl mx-auto z-50 relative'>
 
           {/* language selector */}
           <div
@@ -519,7 +546,7 @@ export default function SearchBar() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto px-4 py-6 md:py-12">
           {filteredProperties.map(property => {
 
             return (
@@ -543,9 +570,9 @@ export default function SearchBar() {
 
       {/* Footer */}
       <footer>
-        <div className="bg-[#f7f7f7] py-6 relative">
+        <div className="bg-[#f7f7f7] py-6 md:py-15 relative">
           <div className="max-w-7xl mx-auto px-4 gap-1 text-center md:text-left flex flex-col relative">
-            <div className='px-4 gap-1 text-center md:text-left flex flex-col md:ml-72'>
+            <div className='px-4 gap-1 text-center md:text-left flex flex-col md:ml-[405px]'>
               <Link href="/" className="hover:text-[#bc7c37] transition text-[#141414]">
                 Rentals
               </Link>
@@ -560,7 +587,7 @@ export default function SearchBar() {
               </Link>
             </div>
 
-            <div className='absolute bottom-5 right-0 transform -translate-x-1/2 text-4xl text-green-600'>
+            <div className='absolute bottom-5 right-0 transform -translate-x-1/2 text-5xl text-green-600'>
               <Link href="https://api.whatsapp.com/send?phone=8801812345678" target="_blank" className="hover:text-green-600 transition">
                 <BsWhatsapp />
               </Link>
@@ -568,6 +595,7 @@ export default function SearchBar() {
           </div>
         </div>
       </footer>
+      <ToastContainer />
     </div>
   )
 }

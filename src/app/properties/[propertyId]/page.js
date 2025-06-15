@@ -159,10 +159,14 @@ const PropertyDetailsPage = ({ params }) => {
         </div>;
     }
 
+    const description = singleProperty?.description || "";
+
+    const lines = description.split(/(?=🛏|🛋|🍽|🍳|🚿|🌇|🌬|📶|🏋️|🏊|🌿|🎮|🧸|🛎|🅿️|✅|🏠|🏢)/);
+
     console.log(singleProperty)
 
     return (
-        <div className="px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8 bg-white">
             <div className='max-w-7xl mx-auto mt-10 md:mt-15'>
                 <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-3 md:grid-rows-2 gap-2 md:gap-4 border-2 border-[#f7f7f7] p-2 md:p-3 rounded-xl md:rounded-2xl">
                     <div className="col-span-2 row-span-2 relative">
@@ -209,7 +213,10 @@ const PropertyDetailsPage = ({ params }) => {
                         <div className='border-b-2 border-[#f7f7f7] mt-6 md:mt-10'>
                             <h2 className='text-2xl md:text-3xl font-bold pb-4 md:pb-5'>About</h2>
                             <p className='pb-6 md:pb-10 text-base md:text-[22px] text-[#141414]'>
-                               {singleProperty?.description}
+
+                                {lines.map((line, index) => (
+                                    <p key={index} className="leading-relaxed">{line.trim()}</p>
+                                ))}
                             </p>
                         </div>
 
@@ -217,13 +224,13 @@ const PropertyDetailsPage = ({ params }) => {
                             <h2 className='text-2xl md:text-3xl font-bold pb-6 md:pb-10 text-[#141414]'>Property Amenities</h2>
                             <div className='grid grid-cols-2 sm:grid-cols-3 gap-4 md:gap-10 max-w-2xl'>
                                 {singleProperty?.listingAmenities?.map((item, index) => (
-                                    <div key={index}  className='flex flex-col justify-center text-center'>
+                                    <div key={index} className='flex flex-col justify-center text-center'>
                                         <p className="text-[#141414] font-bold mb-2 mx-auto">
                                             <IoBedOutline className='text-2xl md:text-4xl mx-auto' />
                                         </p>
                                         <p className="text-[#141414] font-bold mb-2 text-base md:text-lg">
-                                             {item.amenityName
-}
+                                            {item.amenityName
+                                            }
                                         </p>
                                     </div>
                                 ))}
@@ -255,16 +262,12 @@ const PropertyDetailsPage = ({ params }) => {
                                     </div>
                                     <div className='mt-4 md:mt-5'>
                                         <p className="text-[#141414] mb-2 flex items-center gap-2">
-                                            <CiNoWaitingSign className='text-xl md:text-2xl font-bold text-red-500' />
-                                            No pets allowed
-                                        </p>
-                                        <p className="text-[#141414] mb-2 flex items-center gap-2">
-                                            <CiNoWaitingSign className='text-xl md:text-2xl font-bold text-red-500' />
-                                            No parties or events
-                                        </p>
-                                        <p className="text-[#141414] mb-2 flex items-center gap-2">
-                                            <CiNoWaitingSign className='text-xl md:text-2xl font-bold text-red-500' />
-                                            No smoking
+                                            <div
+                                                dangerouslySetInnerHTML={{
+                                                    __html: singleProperty?.houseRules?.replace(/✅/g, '<br/><br/>✅'),
+                                                }}
+                                            />
+
                                         </p>
                                     </div>
                                 </div>
@@ -399,7 +402,7 @@ const PropertyDetailsPage = ({ params }) => {
                         </div>
 
                         <div className=''>
-                           
+
 
                             <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Tourism Tax</p>
                             <p className='pb-6 md:pb-10'>
@@ -410,7 +413,7 @@ const PropertyDetailsPage = ({ params }) => {
 
 
 
-                             <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Guest Registration</p>
+                            <p className="text-[#141414] text-base md:text-lg font-bold mb-2">Guest Registration</p>
                             <p className='pb-6 md:pb-10'>
                                 All property occupants must provide valid
                                 identification (GCC ID / Passport). This is a
