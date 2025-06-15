@@ -33,7 +33,7 @@ const PropertyCard = ({ property }) => {
         {/* Bottom Part - Content */}
         <div className=" flex justify-between items-start mt-4">
           <div>
-            <h3 className=" text-[16px]  text-[#141414] mb-1">{property.name.slice(0, 35)}</h3>
+            <h3 className=" text-[14px]  text-[#141414] mb-1">{property.name.slice(0, 35)}</h3>
             <p className="text-[#141414] text-sm font-bold  flex items-center  gap-2">
               {property?.bedroomsNumber} <FaBed className='text-xl' /> | {property?.bathroomsNumber}<MdShower className='text-xl' />
             </p>
