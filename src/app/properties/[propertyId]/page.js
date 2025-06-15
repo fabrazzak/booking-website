@@ -259,7 +259,7 @@ const PropertyDetailsPage = ({ params }) => {
                 <div className='grid grid-cols-1 md:grid-cols-4 gap-4 mt-8 md:mt-10'>
                     <div className='md:col-span-3 md:pr-6'>
                         <div className='border-b-2 border-[#f7f7f7] pb-2'>
-                            <h2 className='text-2xl md:text-3xl font-bold text-[#141414]'>{singleProperty?.name || "Property Title"}</h2>
+                            <h2 className='text-[20px] md:text-3xl font-bold text-[#141414]'>{singleProperty?.name || "Property Title"}</h2>
                             <p className='font-semibold text-sm md:text-base text-[#141414]'>{singleProperty?.publicAddress || "Property Address"}</p>
                             <p className="text-[#141414] text-sm font-bold mb-3 flex items-center gap-2 pt-3 md:pt-5">
                                 <span>{singleProperty?.bedroomsNumber || 0}</span>
